@@ -1,0 +1,791 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#254b35">
+<title>Desafio Libras | Aventura na Floresta</title>
+
+<style>
+:root {
+  --forest: #254b35;
+  --forest-dark: #183b2a;
+  --leaf: #527b45;
+  --leaf-light: #dce8cb;
+  --cream: #fff8e9;
+  --paper: #fffdf5;
+  --text: #344332;
+  --muted: #7c856d;
+  --correct: #dcefd5;
+  --incorrect: #f8dfd3;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+  min-height: 100vh;
+  padding: 20px;
+  font-family: "Trebuchet MS", "Segoe UI", sans-serif;
+  color: var(--text);
+  background-color: #e8eddb;
+  background-image:
+    radial-gradient(ellipse at 5% 10%, #c5d6ad 0, transparent 30%),
+    radial-gradient(ellipse at 95% 80%, #d0dfb9 0, transparent 28%),
+    linear-gradient(135deg, #edf0df, #e1e9d3);
+}
+
+.container {
+  width: 100%;
+  max-width: 850px;
+  margin: 0 auto;
+}
+
+/* CABEÇALHO COM FOTOGRAFIA */
+.forest-header {
+  padding: 0;
+  margin: 0 0 22px;
+}
+
+.forest-photo {
+  min-height: 245px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  position: relative;
+  border-radius: 24px;
+  background-color: #294a32;
+  background-image:
+    linear-gradient(
+      0deg,
+      rgba(17, 43, 27, .88),
+      rgba(17, 43, 27, .18)
+    ),
+    url("https://images.unsplash.com/photo-1441974231531-c6227db76b6e?auto=format&fit=crop&w=1400&q=85");
+  background-size: cover;
+  background-position: center 48%;
+  box-shadow: 0 6px 0 #b6c5a5;
+}
+
+.forest-overlay {
+  width: 100%;
+  padding: 35px 20px;
+  text-align: center;
+  position: relative;
+  z-index: 1;
+}
+
+.forest-label {
+  display: inline-block;
+  margin-bottom: 12px;
+  padding: 7px 13px;
+  border: 1px solid #ffffff85;
+  border-radius: 30px;
+  color: #fffbe9;
+  font-size: 11px;
+  font-weight: bold;
+  letter-spacing: 2px;
+  background: #173b29a6;
+}
+
+.forest-header h1 {
+  color: #fffdf2;
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(34px, 6vw, 48px);
+  letter-spacing: -.8px;
+  line-height: 1.15;
+  margin: 4px 0 12px;
+  text-shadow: 0 2px 10px #0007;
+}
+
+.forest-header .subtitle {
+  max-width: 430px;
+  margin: 0 auto;
+  color: #f6f3df;
+  font-size: 15px;
+  line-height: 1.6;
+  text-shadow: 0 1px 5px #0008;
+}
+
+/* PONTUAÇÃO */
+.stats {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 12px;
+  margin: 0 0 22px;
+}
+
+.stat {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  min-width: 145px;
+  padding: 12px 18px;
+  border: 1px solid #cbd7ba;
+  border-radius: 14px;
+  background: #fffdf5;
+  color: #344b34;
+  font-size: 15px;
+  box-shadow: 0 3px 0 #d3ddc3;
+}
+
+.stat strong {
+  font-weight: 800;
+  color: #254b35;
+}
+
+.stat-icon {
+  position: relative;
+  flex: 0 0 22px;
+  width: 22px;
+  height: 22px;
+  display: inline-block;
+}
+
+/* Estrela desenhada em CSS */
+.star-icon::before {
+  content: "★";
+  display: block;
+  color: #c29a40;
+  font-size: 23px;
+  line-height: 22px;
+  text-shadow: 0 1px 0 #8a6c28;
+}
+
+/* Pegada desenhada em CSS */
+.paw-icon::before,
+.paw-icon::after {
+  content: "";
+  position: absolute;
+  display: block;
+  background: #527b45;
+}
+
+.paw-icon::before {
+  width: 13px;
+  height: 11px;
+  left: 4px;
+  bottom: 2px;
+  border-radius: 55% 55% 45% 45%;
+  transform: rotate(-12deg);
+}
+
+.paw-icon::after {
+  width: 6px;
+  height: 7px;
+  left: 2px;
+  top: 2px;
+  border-radius: 50%;
+  box-shadow:
+    7px -1px 0 #527b45,
+    14px 3px 0 #527b45,
+    17px 10px 0 #527b45;
+}
+
+/* CARTÃO PRINCIPAL */
+.card {
+  position: relative;
+  overflow: hidden;
+  padding: clamp(18px, 4vw, 32px);
+  text-align: center;
+  border-radius: 25px;
+  background: var(--paper);
+  border: 2px solid #d3ddc2;
+  box-shadow:
+    0 7px 0 #c4d1b2,
+    0 15px 35px #435a3218;
+}
+
+/* Desativa as folhas decorativas que cobriam o texto */
+.card::before,
+.card::after {
+  content: none;
+}
+
+.progress-area {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 8px 14px;
+  margin: 0 0 12px;
+  padding: 0;
+  color: #65745a;
+  font-size: 14px;
+  font-weight: bold;
+}
+
+.progress-track {
+  position: relative;
+  height: 10px;
+  overflow: hidden;
+  margin-bottom: 24px;
+  border-radius: 20px;
+  background: #e8eddb;
+  border: 1px solid #dbe3ce;
+}
+
+.progress-fill {
+  height: 100%;
+  width: 0%;
+  border-radius: 20px;
+  background: linear-gradient(90deg, #668c4c, #a5bd70);
+  transition: width .35s ease;
+}
+
+.instruction {
+  margin: 12px 0 20px;
+  color: var(--forest);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(19px, 3vw, 24px);
+  font-weight: bold;
+}
+
+/* MOLDURA INSPIRADA EM MADEIRA */
+.sign-frame {
+  position: relative;
+  width: min(100%, 390px);
+  height: 270px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  margin: 0 auto 24px;
+  border: 7px solid #a8784f;
+  border-radius: 18px;
+  background: #f0ead8;
+  box-shadow:
+    inset 0 0 0 2px #d7b18a,
+    0 5px 0 #805736,
+    0 10px 18px #35462b20;
+}
+
+.sign-frame img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+  transform: translateY(-8px) scale(1.04);
+}
+
+/* ALTERNATIVAS DE RESPOSTA */
+.answers {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 12px;
+  max-width: 580px;
+  margin: 0 auto;
+}
+
+.answer {
+  min-height: 58px;
+  padding: 13px 10px;
+  border: 2px solid #d4dfc5;
+  border-radius: 14px;
+  background: #f3f5e8;
+  color: #354a32;
+  font-size: 17px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 3px 0 #d5dfc8;
+  transition:
+    background .18s ease,
+    border-color .18s ease,
+    transform .18s ease,
+    box-shadow .18s ease;
+}
+
+.answer:hover:not(:disabled) {
+  background: #e3ebd5;
+  border-color: #91aa76;
+  transform: translateY(-2px);
+  box-shadow: 0 5px 0 #c5d5b3;
+}
+
+.answer:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: 0 1px 0 #c5d5b3;
+}
+
+.answer:focus-visible,
+.main-button:focus-visible {
+  outline: 3px solid #c18b52;
+  outline-offset: 3px;
+}
+
+.answer:disabled {
+  cursor: default;
+  opacity: 1;
+}
+
+.answer.correct {
+  color: #24552f;
+  background: var(--correct);
+  border-color: #76a76b;
+  box-shadow: 0 3px 0 #b7d5a9;
+}
+
+.answer.wrong {
+  color: #873f2e;
+  background: var(--incorrect);
+  border-color: #d99b80;
+  box-shadow: 0 3px 0 #e7c0ad;
+}
+
+/* MENSAGENS DE FEEDBACK */
+.feedback {
+  min-height: 36px;
+  margin: 20px 0 10px;
+  color: var(--muted);
+  font-size: 17px;
+  font-weight: bold;
+  line-height: 1.5;
+}
+
+.feedback.success {
+  color: #387341;
+}
+
+.feedback.error {
+  color: #a65039;
+}
+
+/* BOTÕES */
+.main-button {
+  display: inline-block;
+  padding: 15px 25px;
+  border: 2px solid #193c29;
+  border-radius: 13px;
+  background: var(--forest);
+  color: #fff9e9;
+  font-family: inherit;
+  font-size: 16px;
+  font-weight: bold;
+  cursor: pointer;
+  box-shadow: 0 4px 0 #153222;
+  transition: background .2s, transform .2s, box-shadow .2s;
+}
+
+.main-button:hover:not(:disabled) {
+  background: #386544;
+  transform: translateY(-2px);
+  box-shadow: 0 6px 0 #153222;
+}
+
+.main-button:active:not(:disabled) {
+  transform: translateY(2px);
+  box-shadow: 0 2px 0 #153222;
+}
+
+.main-button:disabled {
+  opacity: .45;
+  cursor: not-allowed;
+  box-shadow: none;
+}
+
+/* RESULTADO FINAL */
+.finish {
+  display: none;
+  padding: 30px 20px;
+}
+
+.finish .emoji {
+  font-size: 65px;
+}
+
+.finish h2 {
+  color: var(--forest);
+  font-family: Georgia, "Times New Roman", serif;
+  font-size: clamp(27px, 5vw, 35px);
+}
+
+.finish p {
+  max-width: 480px;
+  margin: 15px auto 25px;
+  color: #66735a;
+  font-size: 17px;
+  line-height: 1.7;
+}
+
+footer {
+  padding: 25px 10px 8px;
+  text-align: center;
+  color: #6b795e;
+  font-size: 13px;
+  line-height: 1.6;
+}
+
+/* AJUSTES PARA CELULARES */
+@media (max-width: 480px) {
+  body {
+    padding: 10px;
+  }
+
+  .forest-photo {
+    min-height: 220px;
+    border-radius: 18px;
+  }
+
+  .forest-overlay {
+    padding: 30px 15px;
+  }
+
+  .forest-header h1 {
+    font-size: 35px;
+  }
+
+  .forest-header .subtitle {
+    font-size: 14px;
+  }
+
+  .stats {
+    gap: 9px;
+  }
+
+  .stat {
+    min-width: 135px;
+    padding: 11px 12px;
+    gap: 8px;
+    font-size: 14px;
+  }
+
+  .card {
+    padding: 19px 13px;
+    border-radius: 21px;
+  }
+
+  .sign-frame {
+    height: 235px;
+    border-width: 6px;
+    margin-bottom: 21px;
+  }
+
+  .answers {
+    gap: 10px;
+  }
+
+  .answer {
+    min-height: 54px;
+    padding: 11px 6px;
+    font-size: 15px;
+    overflow-wrap: anywhere;
+  }
+
+  .feedback {
+    font-size: 15px;
+  }
+
+  .main-button {
+    max-width: 100%;
+    padding: 14px 19px;
+  }
+
+  .progress-area {
+    font-size: 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    transition-duration: .01ms !important;
+  }
+}
+</style>
+</head>
+
+<body>
+<div class="container">
+
+  <header class="forest-header">
+    <div class="forest-photo">
+      <div class="forest-overlay">
+        <span class="forest-label">AVENTURA EDUCATIVA</span>
+        <h1>Desafio Libras</h1>
+        <p class="subtitle">
+          Explore a floresta e descubra os sinais dos animais.
+        </p>
+      </div>
+    </div>
+  </header>
+
+  <div class="stats">
+    <div class="stat">
+      <span class="stat-icon star-icon" aria-hidden="true"></span>
+      <span>Pontos: <strong id="score">0</strong></span>
+    </div>
+
+    <div class="stat">
+      <span class="stat-icon paw-icon" aria-hidden="true"></span>
+      <span>Acertos: <strong id="hits">0</strong></span>
+    </div>
+  </div>
+
+  <main class="card" id="game">
+    <div class="progress-area">
+      <span id="roundLabel">Pergunta 1</span>
+      <span id="remainingLabel">5 desafios restantes</span>
+    </div>
+
+    <div
+      class="progress-track"
+      id="progressTrack"
+      role="progressbar"
+      aria-label="Progresso do jogo"
+      aria-valuemin="0"
+      aria-valuemax="5"
+      aria-valuenow="0"
+    >
+      <div class="progress-fill" id="progress"></div>
+    </div>
+
+    <p class="instruction">
+      Que animal está fazendo este sinal?
+    </p>
+
+    <div class="sign-frame">
+      <img
+        id="signImage"
+        src=""
+        alt="Sinal em Libras de um animal"
+      >
+    </div>
+
+    <div class="answers" id="answers"></div>
+
+    <div class="feedback" id="feedback" aria-live="polite"></div>
+
+    <button class="main-button" id="nextButton" disabled>
+      Próxima pergunta →
+    </button>
+  </main>
+
+  <section class="card finish" id="finish">
+    <div class="emoji" id="finishEmoji">🏆</div>
+    <h2>Trilha concluída!</h2>
+    <p id="resultText"></p>
+    <button class="main-button" id="restartButton">
+      Explorar novamente
+    </button>
+  </section>
+
+  <footer>
+    Aprender Libras é abrir caminhos para a comunicação e a inclusão.
+  </footer>
+
+</div>
+
+<script>
+const animals = [
+  {
+    name: "Cavalo/Égua",
+    image: "https://raw.githubusercontent.com/giihst86-arch/jogo.libras-/main/Cavalo.gif"
+  },
+  {
+    name: "Girafa",
+    image: "https://raw.githubusercontent.com/giihst86-arch/jogo.libras-/main/Girafa.gif"
+  },
+  {
+    name: "Jacaré",
+    image: "https://raw.githubusercontent.com/giihst86-arch/jogo.libras-/main/Jacare.gif"
+  },
+  {
+    name: "Tatu",
+    image: "https://raw.githubusercontent.com/giihst86-arch/jogo.libras-/main/tatu.gif"
+  },
+  {
+    name: "Tigre",
+    image: "https://raw.githubusercontent.com/giihst86-arch/jogo.libras-/main/Tigre.gif"
+  }
+];
+
+let questions = [];
+let current = 0;
+let score = 0;
+let hits = 0;
+let answered = false;
+
+const image = document.getElementById("signImage");
+const answersElement = document.getElementById("answers");
+const feedback = document.getElementById("feedback");
+const nextButton = document.getElementById("nextButton");
+
+function shuffle(list) {
+  const result = [...list];
+
+  for (let i = result.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [result[i], result[j]] = [result[j], result[i]];
+  }
+
+  return result;
+}
+
+function startGame() {
+  questions = shuffle(animals);
+  current = 0;
+  score = 0;
+  hits = 0;
+
+  document.getElementById("score").textContent = score;
+  document.getElementById("hits").textContent = hits;
+
+  document.getElementById("game").style.display = "block";
+  document.getElementById("finish").style.display = "none";
+
+  showQuestion();
+}
+
+function showQuestion() {
+  answered = false;
+
+  const question = questions[current];
+
+  document.getElementById("roundLabel").textContent =
+    `Trilha ${current + 1} de ${questions.length}`;
+
+  document.getElementById("remainingLabel").textContent =
+    `${questions.length - current} ${
+      questions.length - current === 1 ? "desafio" : "desafios"
+    } restantes`;
+
+  document.getElementById("progress").style.width =
+    `${(current / questions.length) * 100}%`;
+
+  document.getElementById("progressTrack").setAttribute(
+    "aria-valuenow",
+    current
+  );
+
+  image.onerror = () => {
+    image.alt = "Não foi possível carregar o GIF. Verifique sua conexão e o endereço do arquivo.";
+  };
+
+  image.src = question.image;
+  image.alt = "Sinal em Libras. Observe e escolha a resposta.";
+
+  feedback.textContent = "";
+  feedback.className = "feedback";
+
+  nextButton.disabled = true;
+  nextButton.textContent = "Próxima pergunta →";
+
+  const wrongOptions = shuffle(
+    animals.filter(animal => animal.name !== question.name)
+  ).slice(0, 3);
+
+  const options = shuffle([question, ...wrongOptions]);
+
+  answersElement.innerHTML = "";
+
+  options.forEach(animal => {
+    const button = document.createElement("button");
+
+    button.className = "answer";
+    button.textContent = animal.name;
+    button.type = "button";
+
+    button.addEventListener("click", () => {
+      chooseAnswer(button, animal);
+    });
+
+    answersElement.appendChild(button);
+  });
+}
+
+function chooseAnswer(button, selected) {
+  if (answered) return;
+
+  answered = true;
+
+  const correct = questions[current];
+
+  document.querySelectorAll(".answer").forEach(answer => {
+    answer.disabled = true;
+
+    if (answer.textContent === correct.name) {
+      answer.classList.add("correct");
+    }
+  });
+
+  if (selected.name === correct.name) {
+    score += 10;
+    hits++;
+
+    feedback.textContent = "Muito bem! Você encontrou o animal!";
+    feedback.className = "feedback success";
+  } else {
+    button.classList.add("wrong");
+
+    feedback.textContent =
+      "Não foi dessa vez! Observe o sinal e tente o próximo desafio.";
+
+    feedback.className = "feedback error";
+  }
+
+  document.getElementById("score").textContent = score;
+  document.getElementById("hits").textContent = hits;
+
+  nextButton.disabled = false;
+
+  nextButton.textContent =
+    current === questions.length - 1
+      ? "Ver resultado"
+      : "Próxima pergunta →";
+}
+
+nextButton.addEventListener("click", () => {
+  if (!answered) return;
+
+  current++;
+
+  if (current < questions.length) {
+    showQuestion();
+  } else {
+    showFinish();
+  }
+});
+
+function showFinish() {
+  document.getElementById("game").style.display = "none";
+  document.getElementById("finish").style.display = "block";
+
+  document.getElementById("progress").style.width = "100%";
+  document.getElementById("progressTrack").setAttribute(
+    "aria-valuenow",
+    questions.length
+  );
+
+  let emoji = "🌱";
+  let message = "Continue praticando! Cada tentativa é um novo aprendizado.";
+
+  if (hits === questions.length) {
+    emoji = "🏆";
+    message = "Incrível! Você reconheceu todos os sinais da floresta!";
+  } else if (hits >= 3) {
+    emoji = "🦊";
+    message = "Muito bem! Você está se tornando um grande explorador de sinais.";
+  }
+
+  document.getElementById("finishEmoji").textContent = emoji;
+
+  document.getElementById("resultText").textContent =
+    `Você acertou ${hits} de ${questions.length} perguntas e conquistou ${score} pontos. ${message}`;
+}
+
+document.getElementById("restartButton").addEventListener("click", startGame);
+
+startGame();
+</script>
+</body>
+</html>
